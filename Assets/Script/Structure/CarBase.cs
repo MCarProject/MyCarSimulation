@@ -44,8 +44,8 @@ public class CarBase : ObjectBase {
 		Friction ();
 		UpdateRPM ();
 		Movement ();
-		Debug.Log ("v:" + velocity + ", lV:" + limitedVelocity + ", a:" + acceleration +
-			", lA:" + limitedAcceleration + ", g:" + gearFactor + ", S:" + carState +
+		Debug.Log ("v:" + velocity + "/" + limitedVelocity + ", a:" + acceleration +
+			"/" + limitedAcceleration + ", g:" + gearFactor + ", S:" + carState +
 		           ", RPM:" + RPM);
 	}
 	
