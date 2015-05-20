@@ -7,7 +7,7 @@ public class KeyInput : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		rb = GetComponent<Rigidbody> ();
-		player = GameObject.Find ("User").GetComponent<CarBase> ();
+		player = GameObject.Find ("Player").GetComponent<CarBase> ();
 	}
 
 	void LateUpdate() {

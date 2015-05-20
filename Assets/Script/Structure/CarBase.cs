@@ -5,51 +5,27 @@ public class CarBase : ObjectBase {
 	public enum CarState { ENGINE_OFF, GEARS_N, GEARS_R, GEARS_1, GEARS_2, 
 					GEARS_3, GEARS_4, GEARS_5, CLUTCHED };
 
-	private float RPM;					//엔진회전속도 (0~1)
-	private float maximumVelocity;		//최대속도
-	private float limitedVelocity;		//한계속도
-	private float velocity;				//속도
-	private float maximumAcceleration;	//최대가속도
-	private float limitedAcceleration;	//한계가속도
-	private float acceleration;			//가속도
-	private float accelerationFactor;	//가속계수
-	private float gearValue;			//기어수치
-	private float gearFactor;			//기어계수
-	private float collisionFactor;		//충돌계수
-	private float turnRate;				//회전율
-	private float durability;			//내구도
-	private CarState carState;			//기어상태
+	protected float RPM;					//엔진회전속도	(0~1)
+	protected float maximumVelocity;		//최대속도		(15~30 /s)
+	protected float limitedVelocity;		//한계속도
+	protected float velocity;				//속도
+	protected float maximumAcceleration;	//최대가속도
+	protected float limitedAcceleration;	//한계가속도
+	protected float acceleration;			//가속도
+	protected float accelerationFactor;		//가속계수
+	protected float gearValue;				//기어수치
+	protected float gearFactor;				//기어계수
+	protected float collisionFactor;		//충돌계수	(0.2~0.6)
+	protected float earthingFactor;			//접지계수	(0.5~0.9)
+	protected float turnRate;				//회전율		(40~60 degree/s)
+	protected float durability;				//내구도
+	protected CarState carState;			//기어상태
 
-	private Rigidbody rigidbody;
+	protected Rigidbody rigidbody;
 
 	void Start () {
-		RPM = 0.0f;
-		maximumVelocity = 15.0f;
-		limitedVelocity = 0.0f;
-		velocity = 0.0f;
-		maximumAcceleration = 1.5f;
-		limitedAcceleration = 0.0f;
-		acceleration = 0.0f;
-		accelerationFactor = maximumAcceleration;
-		gearValue = 0.0f;
-		gearFactor = 0.0f;
-		collisionFactor = 0.2f;
-		turnRate = 50.0f;
-		durability = 1.0f;
-		carState = CarState.GEARS_N;
-
-		rigidbody = this.GetComponent<Rigidbody> ();
-		SetGear ();
 	}
 	void Update() {
-		GearUpdate ();
-		UpdateVelocity ();
-		Friction ();
-		UpdateRPM ();
-		Movement ();
-		Debug.Log ("v:" + velocity + "/" + limitedVelocity + ", a:" + acceleration +
-			"/" + limitedAcceleration + ", g:" + gearFactor + ", S:" + carState +
-		           ", RPM:" + RPM);
 	}
 	
 /* Gear Processing */
@@ -92,7 +68,7 @@ public class CarBase : ObjectBase {
 		}
 		SetGear ();
 	}
-	void SetGear() {
+	protected void SetGear() {
 		if (carState == CarState.ENGINE_OFF ||
 			carState == CarState.GEARS_R ||
 			carState == CarState.CLUTCHED) {
@@ -112,7 +88,7 @@ public class CarBase : ObjectBase {
 			gearFactor = 1.0f;
 		}
 	}
-	void GearUpdate() {
+	protected void GearUpdate() {
 		if (gearValue > gearFactor) {
 			gearValue -= 0.05f * Time.deltaTime;
 		} else if (gearValue < gearFactor) {
@@ -120,31 +96,26 @@ public class CarBase : ObjectBase {
 		}
 		limitedVelocity = gearValue * maximumVelocity;
 		limitedAcceleration = (1 / gearFactor) * maximumAcceleration;
+		if (carState == CarState.GEARS_1) {
+			gearValue = 0.4f;
+		}
 	}
 
 /* Movement Processing */
 	public void Accelerate() {
 		if (carState == CarState.ENGINE_OFF ||
-		    carState == CarState.GEARS_N) {
+		    carState == CarState.GEARS_N ||
+		    carState == CarState.CLUTCHED) {
 			return;
 		}
 		if (acceleration < limitedAcceleration) {
-			acceleration = limitedAcceleration;
+			acceleration += 5.0f * Time.deltaTime;
 		}
 		checkValid ();
 	}
 	public void Decelerate() {
 		acceleration = 0;
-		velocity -= accelerationFactor * 2.0f * Time.deltaTime;
-		checkValid ();
-	}
-	void UpdateVelocity() {
-		velocity += acceleration * Time.deltaTime;
-		checkValid ();
-	}
-	void Friction() {
-		acceleration -= accelerationFactor * Time.deltaTime;
-		velocity -= accelerationFactor * 0.5f * Time.deltaTime;
+		velocity -= accelerationFactor * 5.0f * Time.deltaTime;
 		checkValid ();
 	}
 	public void Turn(float axis) {
@@ -153,13 +124,26 @@ public class CarBase : ObjectBase {
 		}
 		this.transform.Rotate (0, (axis * turnRate * Time.deltaTime), 0);
 	}
-	void Movement() {
-		Vector3 tVec = new Vector3 (this.transform.forward.x * velocity, 
+	protected void Movement() {
+		GearUpdate ();
+		Friction ();
+		UpdateVelocity ();
+		Vector3 tVec = new Vector3 (this.transform.forward.x * velocity * earthingFactor, 
 		                            rigidbody.velocity.y, 
-		                            this.transform.forward.z * velocity);
+		                            this.transform.forward.z * velocity * earthingFactor);
 		rigidbody.velocity = tVec;
+		UpdateRPM ();
 	}
-	void checkValid() {
+	protected void UpdateVelocity() {
+		velocity += acceleration * Time.deltaTime;
+		checkValid ();
+	}
+	protected void Friction() {
+		acceleration -= accelerationFactor * Time.deltaTime;
+		velocity -= accelerationFactor * 0.5f * Time.deltaTime;
+		checkValid ();
+	}
+	protected void checkValid() {
 		if (velocity > limitedVelocity) {
 			velocity = limitedVelocity;
 		} else if (velocity < 0) {
@@ -171,7 +155,7 @@ public class CarBase : ObjectBase {
 			acceleration = 0;
 		}
 	}
-	void UpdateRPM() {
+	protected void UpdateRPM() {
 		if (limitedVelocity == 0) {
 			RPM = 0.0f;
 			return;

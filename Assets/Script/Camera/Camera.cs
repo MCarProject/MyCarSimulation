@@ -12,7 +12,7 @@ public class Camera : MonoBehaviour {
 	Vector3 offset;
 
 	void Start () {
-		target = GameObject.Find ("User");
+		target = GameObject.Find ("Player");
 		trackingDistance = 5.5f;
 		mouseSensitivity = 2.0f;
 
