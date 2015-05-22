@@ -45,7 +45,12 @@ public class Camera : MonoBehaviour {
 		offset = this.transform.position - target.transform.position ;
 	}
 	void SetCameraDistance() {
-		trackingDistance += Input.GetAxis ("Mouse ScrollWheel")*1.3f;
+		if (Input.GetKey (KeyCode.KeypadPlus)) {
+			trackingDistance += Time.deltaTime * 1.5f;
+		}
+		if (Input.GetKey (KeyCode.KeypadMinus)) {
+			trackingDistance -= Time.deltaTime * 1.5f;
+		}
 		if (trackingDistance > maximumDistance) {
 			trackingDistance = maximumDistance;
 		} else if (trackingDistance < minimumDistance) {

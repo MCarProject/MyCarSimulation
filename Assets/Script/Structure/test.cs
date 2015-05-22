@@ -1,7 +1,7 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
-public class CarBase : ObjectBase {
+public class test : ObjectBase {
 	public enum CarState { ENGINE_OFF, GEARS_N, GEARS_R, GEARS_1, GEARS_2, 
 		GEARS_3, GEARS_4, GEARS_5 };
 	private bool clutched;
@@ -11,8 +11,10 @@ public class CarBase : ObjectBase {
 	protected float maximumVelocity;		//최대속도		(15~30 /s)
 	protected float limitedVelocity;		//한계속도
 	protected float velocity;				//속도
-	protected float standardAcceleration;	//기준가속도
+	protected float maximumAcceleration;	//최대가속도
+	protected float limitedAcceleration;	//한계가속도
 	protected float acceleration;			//가속도
+	protected float accelerationFactor;		//가속계수
 	protected float gearValue;				//기어수치
 	protected float gearFactor;				//기어계수
 	protected float collisionFactor;		//충돌계수	(0.2~0.6)
@@ -29,7 +31,7 @@ public class CarBase : ObjectBase {
 	}
 	void Update() {
 	}
-	
+
 	public void OnClutched(bool on) {
 		if (on) {
 			clutched = true;
@@ -37,7 +39,7 @@ public class CarBase : ObjectBase {
 			clutched = false;
 		}
 	}
-	
+
 	//state true: downGear, false: upGear
 	public void ChangeGear(bool state) {
 		downGear = state;
@@ -90,13 +92,13 @@ public class CarBase : ObjectBase {
 				}
 			}
 		}
-		acceleration = (1 / gearFactor) * standardAcceleration;
+		limitedAcceleration = (1 / gearFactor) * maximumAcceleration;
 	}
-	
+
 	//In Update()
 	void UpdateLimit() {
 		if (!downGear) {
-			if (limitedVelocity >= velocity) {
+			if (limitedVelocity > velocity) {
 				limitedVelocity = gearFactor * maximumVelocity;
 			}
 		} else {
@@ -106,17 +108,32 @@ public class CarBase : ObjectBase {
 			}
 		}
 	}
-	public void EngineControl() {
+	public void StartEngine() { 
 		if (carState == CarState.ENGINE_OFF) {
 			carState = CarState.GEARS_N;
 			gearFactor = 0.0f;
-		} else {
-			carState = CarState.ENGINE_OFF;
-			gearFactor = 0.0f;
 		}
+	}
+	public void OffEngine() {
+		carState = CarState.ENGINE_OFF;
+		gearFactor = 0.0f;
 	}
 	
 	/* Gear Processing */
+
+
+	protected void GearUpdate() {
+		if (gearValue > gearFactor) {
+			gearValue -= 0.05f * Time.deltaTime;
+		} else if (gearValue < gearFactor) {
+			gearValue += 0.05f * Time.deltaTime;
+		}
+		limitedVelocity = gearValue * maximumVelocity;
+		limitedAcceleration = (1 / gearFactor) * maximumAcceleration;
+		if (carState == CarState.GEARS_1) {
+			gearValue = 0.4f;
+		}
+	}
 	
 	/* Movement Processing */
 	public void Accelerate() {
@@ -125,11 +142,14 @@ public class CarBase : ObjectBase {
 		    clutched) {
 			return;
 		}
-		velocity += acceleration * Time.deltaTime;
+		if (acceleration < limitedAcceleration) {
+			acceleration += 5.0f * Time.deltaTime;
+		}
 		checkValid ();
 	}
 	public void Decelerate() {
-		velocity -= standardAcceleration * 5.0f * Time.deltaTime;
+		acceleration = 0;
+		velocity -= accelerationFactor * 5.0f * Time.deltaTime;
 		checkValid ();
 	}
 	public void Turn(float axis) {
@@ -139,17 +159,22 @@ public class CarBase : ObjectBase {
 		this.transform.Rotate (0, (axis * turnRate * Time.deltaTime), 0);
 	}
 	protected void Movement() {
-		UpdateLimit ();
+		GearUpdate ();
 		Friction ();
-		//UpdateVelocity ();
+		UpdateVelocity ();
 		Vector3 tVec = new Vector3 (this.transform.forward.x * velocity * earthingFactor, 
 		                            rigidbody.velocity.y, 
 		                            this.transform.forward.z * velocity * earthingFactor);
 		rigidbody.velocity = tVec;
 		UpdateRPM ();
 	}
+	protected void UpdateVelocity() {
+		velocity += acceleration * Time.deltaTime;
+		checkValid ();
+	}
 	protected void Friction() {
-		velocity -= standardAcceleration * 0.5f * Time.deltaTime;
+		acceleration -= accelerationFactor * Time.deltaTime;
+		velocity -= accelerationFactor * 0.5f * Time.deltaTime;
 		checkValid ();
 	}
 	protected void checkValid() {
@@ -158,8 +183,13 @@ public class CarBase : ObjectBase {
 		} else if (velocity < 0) {
 			velocity = 0.0f;
 		}
+		if (acceleration > limitedAcceleration) {
+			acceleration = limitedAcceleration;
+		} else if (acceleration < 0) {
+			acceleration = 0;
+		}
 	}
-	void UpdateRPM() {
+	protected void UpdateRPM() {
 		if (limitedVelocity == 0) {
 			RPM = 0.0f;
 			return;

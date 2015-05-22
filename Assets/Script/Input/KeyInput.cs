@@ -2,10 +2,12 @@
 using System.Collections;
 
 public class KeyInput : MonoBehaviour {
+	float engineCount;
 	Rigidbody rb;
 	CarBase player;
-	// Use this for initialization
+
 	void Start () {
+		engineCount = 0.0f;
 		rb = GetComponent<Rigidbody> ();
 		player = GameObject.Find ("Player").GetComponent<CarBase> ();
 	}
@@ -13,7 +15,6 @@ public class KeyInput : MonoBehaviour {
 	void LateUpdate() {
 	}
 
-	// Update is called once per frame
 	void Update () {
 		GetKeyInput ();
 	}
@@ -25,22 +26,18 @@ public class KeyInput : MonoBehaviour {
 		if(Input.GetKey(KeyCode.S)) {
 			player.Decelerate();
 		}
-		if(Input.GetKeyDown(KeyCode.Alpha1)) {
-			player.OnGearChange(CarBase.CarState.GEARS_1);
-		}else if(Input.GetKeyDown(KeyCode.Alpha2)) {
-			player.OnGearChange(CarBase.CarState.GEARS_2);
-		}else if(Input.GetKeyDown(KeyCode.Alpha3)) {
-			player.OnGearChange(CarBase.CarState.GEARS_3);
-		}else if(Input.GetKeyDown(KeyCode.Alpha4)) {
-			player.OnGearChange(CarBase.CarState.GEARS_4);
-		}else if(Input.GetKeyDown(KeyCode.Alpha5)) {
-			player.OnGearChange(CarBase.CarState.GEARS_5);
-		}else if(Input.GetKeyDown(KeyCode.R)) {
-			player.OnGearChange(CarBase.CarState.ENGINE_OFF);
-		}else if(Input.GetKeyDown(KeyCode.T)) {
-			player.OnGearChange(CarBase.CarState.GEARS_N);
-		}else if(Input.GetKeyDown(KeyCode.C)) {
-			player.OnGearChange(CarBase.CarState.CLUTCHED);
+		if (Input.GetAxis ("Mouse ScrollWheel") < 0) {
+			player.ChangeGear(true);
+		} else if (Input.GetAxis ("Mouse ScrollWheel") > 0) {
+			player.ChangeGear(false);
+		}
+		if(Input.GetKeyDown(KeyCode.R)) {
+			player.EngineControl();
+		}
+		if(Input.GetKeyDown(KeyCode.C)) {
+			player.OnClutched(true);
+		} else if(Input.GetKeyUp(KeyCode.C)) {
+			player.OnClutched(false);
 		}
 
 		player.Turn(Input.GetAxis("Horizontal"));
