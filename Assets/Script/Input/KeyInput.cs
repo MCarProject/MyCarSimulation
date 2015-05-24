@@ -2,13 +2,9 @@
 using System.Collections;
 
 public class KeyInput : MonoBehaviour {
-	float engineCount;
-	Rigidbody rb;
 	CarBase player;
 
 	void Start () {
-		engineCount = 0.0f;
-		rb = GetComponent<Rigidbody> ();
 		player = GameObject.Find ("Player").GetComponent<CarBase> ();
 	}
 
@@ -22,9 +18,11 @@ public class KeyInput : MonoBehaviour {
 	void GetKeyInput() {
 		if(Input.GetKey(KeyCode.W)) {
 			player.Accelerate();
+		} else if(Input.GetKey(KeyCode.S)) {
+			player.Reverse ();
 		}
-		if(Input.GetKey(KeyCode.S)) {
-			player.Decelerate();
+		if(Input.GetKey(KeyCode.Space)) {
+			player.Brake ();
 		}
 		if (Input.GetAxis ("Mouse ScrollWheel") < 0) {
 			player.ChangeGear(true);

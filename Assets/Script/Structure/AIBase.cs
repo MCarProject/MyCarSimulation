@@ -8,6 +8,8 @@ public class AIBase : CarBase {
 		maximumVelocity = 25.0f;
 		limitedVelocity = 0.0f;
 		velocity = 0.0f;
+		maximumReverseVelocity = 8.0f;
+		reverseVelocty = 0.0f;
 		standardAcceleration = 1.0f;
 		acceleration = 0.0f;
 		gearValue = 0.0f;
@@ -18,7 +20,7 @@ public class AIBase : CarBase {
 		durability = 1.0f;
 		carState = CarState.GEARS_N;
 		
-		rigidbody = this.GetComponent<Rigidbody> ();
+		rigidBody = this.GetComponent<Rigidbody> ();
 	}
 
 	void Update () {

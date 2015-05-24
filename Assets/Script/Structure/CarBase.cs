@@ -4,13 +4,16 @@ using System.Collections;
 public class CarBase : ObjectBase {
 	public enum CarState { ENGINE_OFF, GEARS_N, GEARS_R, GEARS_1, GEARS_2, 
 		GEARS_3, GEARS_4, GEARS_5 };
-	private bool clutched;
-	private bool downGear;
-	
+	private bool isClutched;				//클러치상태
+	private bool isDownGear;				//기어조작상태
+	private bool isBacking;					//후진상태
+
 	protected float RPM;					//엔진회전속도	(0~1)
 	protected float maximumVelocity;		//최대속도		(15~30 /s)
 	protected float limitedVelocity;		//한계속도
 	protected float velocity;				//속도
+	protected float maximumReverseVelocity;	//역방향최대속도
+	protected float reverseVelocty;			//역방향속도
 	protected float standardAcceleration;	//기준가속도
 	protected float acceleration;			//가속도
 	protected float gearValue;				//기어수치
@@ -21,34 +24,32 @@ public class CarBase : ObjectBase {
 	protected float durability;				//내구도
 	protected CarState carState;			//기어상태
 	
-	protected Rigidbody rigidbody;
+	protected Rigidbody rigidBody;
 	
 	void Start () {
-		clutched = false;
-		downGear = false;
+		isClutched = false;
+		isDownGear = false;
+		isBacking = false;
 	}
-	void Update() {
-	}
-	
+
+	/* Input for engine control*/
 	public void OnClutched(bool on) {
 		if (on) {
-			clutched = true;
+			isClutched = true;
 		} else {
-			clutched = false;
+			isClutched = false;
 		}
 	}
-	
-	//state true: downGear, false: upGear
 	public void ChangeGear(bool state) {
-		downGear = state;
+		isDownGear = state;
 		if (carState == CarState.ENGINE_OFF) {
 			return;
 		}
-		if (!clutched) {
+		if (!isClutched) {
 			carState = CarState.ENGINE_OFF;
 			gearFactor = 0.0f;
 		} else {
-			if (!downGear) {
+			if (!isDownGear) {
 				if (carState == CarState.GEARS_R) {
 					carState = CarState.GEARS_N;
 					gearFactor = 0.0f;
@@ -86,25 +87,11 @@ public class CarBase : ObjectBase {
 					gearFactor = 0.0f;
 				} else if (carState == CarState.GEARS_N) {
 					carState = CarState.GEARS_R;
-					gearFactor = 0.0f;
+					gearFactor = 0.4f;
 				}
 			}
 		}
 		acceleration = (1 / gearFactor) * standardAcceleration;
-	}
-	
-	//In Update()
-	void UpdateLimit() {
-		if (!downGear) {
-			if (limitedVelocity >= velocity) {
-				limitedVelocity = gearFactor * maximumVelocity;
-			}
-		} else {
-			limitedVelocity -= 1.0f * Time.deltaTime;
-			if(limitedVelocity < gearFactor * maximumVelocity) {
-				limitedVelocity = gearFactor * maximumVelocity;
-			}
-		}
 	}
 	public void EngineControl() {
 		if (carState == CarState.ENGINE_OFF) {
@@ -116,47 +103,94 @@ public class CarBase : ObjectBase {
 		}
 	}
 	
-	/* Gear Processing */
-	
-	/* Movement Processing */
+	/* Input for movement */
 	public void Accelerate() {
 		if (carState == CarState.ENGINE_OFF ||
 		    carState == CarState.GEARS_N ||
-		    clutched) {
+		    carState == CarState.GEARS_R ||
+		    isClutched) {
 			return;
 		}
 		velocity += acceleration * Time.deltaTime;
-		checkValid ();
+		if (velocity > limitedVelocity) {
+			velocity = limitedVelocity;
+		}
+		reverseVelocty -= standardAcceleration * 5.0f * Time.deltaTime;
+		if (reverseVelocty < 0) {
+			reverseVelocty = 0.0f;
+		}
 	}
-	public void Decelerate() {
+	public void Reverse() {
 		velocity -= standardAcceleration * 5.0f * Time.deltaTime;
-		checkValid ();
+		if (velocity < 0) {
+			velocity = 0.0f;
+		}
+		if (carState != CarState.GEARS_R ||
+		    isClutched) {
+			return;
+		}
+		reverseVelocty += standardAcceleration * 2.5f * Time.deltaTime;
+		if (reverseVelocty > maximumReverseVelocity) {
+			reverseVelocty = maximumReverseVelocity;
+		}
+	}
+	public void Brake() {
+		velocity -= standardAcceleration * 5.0f * Time.deltaTime;
+		if (velocity < 0) {
+			velocity = 0.0f;
+		}
+		reverseVelocty -= standardAcceleration * 5.0f * Time.deltaTime;
+		if (reverseVelocty > maximumReverseVelocity) {
+			reverseVelocty = 0.0f;
+		}
 	}
 	public void Turn(float axis) {
-		if (velocity == 0) {
+		if (velocity == 0 && reverseVelocty == 0) {
 			return;
+		}
+		if (isBacking) {
+			axis = -axis;
 		}
 		this.transform.Rotate (0, (axis * turnRate * Time.deltaTime), 0);
 	}
+
+	/* Movement processing */
 	protected void Movement() {
 		UpdateLimit ();
 		Friction ();
-		//UpdateVelocity ();
-		Vector3 tVec = new Vector3 (this.transform.forward.x * velocity * earthingFactor, 
-		                            rigidbody.velocity.y, 
-		                            this.transform.forward.z * velocity * earthingFactor);
-		rigidbody.velocity = tVec;
 		UpdateRPM ();
+		float realVelocity;
+		realVelocity = velocity - reverseVelocty;
+		if (realVelocity < 0) {
+			isBacking = true;
+		} else {
+			isBacking = false;
+		}
+		Vector3 realVector = new Vector3 (this.transform.forward.x * realVelocity * earthingFactor, 
+		                            rigidBody.velocity.y, 
+		                                  this.transform.forward.z * realVelocity * earthingFactor);
+		rigidBody.velocity = realVector;
 	}
-	protected void Friction() {
+	void UpdateLimit() {
+		if (!isDownGear) {
+			if (limitedVelocity >= velocity) {
+				limitedVelocity = gearFactor * maximumVelocity;
+			}
+		} else {
+			limitedVelocity -= 1.0f * Time.deltaTime;
+			if(limitedVelocity < gearFactor * maximumVelocity) {
+				limitedVelocity = gearFactor * maximumVelocity;
+			}
+		}
+	}
+	void Friction() {
 		velocity -= standardAcceleration * 0.5f * Time.deltaTime;
-		checkValid ();
-	}
-	protected void checkValid() {
-		if (velocity > limitedVelocity) {
-			velocity = limitedVelocity;
-		} else if (velocity < 0) {
+		if (velocity < 0) {
 			velocity = 0.0f;
+		}
+		reverseVelocty -= standardAcceleration * 0.5f * Time.deltaTime;
+		if (reverseVelocty < 0) {
+			reverseVelocty = 0.0f;
 		}
 	}
 	void UpdateRPM() {
@@ -164,7 +198,7 @@ public class CarBase : ObjectBase {
 			RPM = 0.0f;
 			return;
 		}
-		RPM = velocity / (gearFactor * maximumVelocity);
+		RPM = (velocity + reverseVelocty) / (gearFactor * maximumVelocity);
 		if (RPM < 0.1f) {
 			RPM = 0.1f;
 		}
@@ -177,7 +211,9 @@ public class CarBase : ObjectBase {
 	
 	/* Modify velocity when OnCollision */
 	void OnCollisionEnter(Collision collision) {
-		if (collision.gameObject.name != "Terrain") {
+		if (collision.gameObject.name == "Cube") {
+			velocity = velocity * 0.9f;
+		} else if (collision.gameObject.name != "Terrain") {
 			velocity = velocity * collisionFactor;
 		}
 	}
