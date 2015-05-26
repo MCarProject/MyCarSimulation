@@ -3,6 +3,11 @@ using UnityEngine.UI;
 using System.Collections;
 
 public class Player : CarBase {
+	public static float playerVelocity;
+	public static float playerRPM;
+	public static float playerDurability;
+	public static CarState playerCarState;
+	public static bool playerClutch;
 	Text debugUI;
 
 	void Start () {
@@ -36,5 +41,14 @@ public class Player : CarBase {
 		                ", rV:" + reverseVelocty + "/" + maximumReverseVelocity + 
 		                ", a:" + acceleration + ", g:" + gearFactor + 
 		                ", S:" + carState + ", RPM:" + RPM);
+		SetPlayerStatus ();
+	}
+
+	void SetPlayerStatus() {
+		playerVelocity = Mathf.Abs(velocity - reverseVelocty);
+		playerRPM = RPM;
+		playerDurability = durability;
+		playerCarState = carState;
+		playerClutch = isClutched;
 	}
 }

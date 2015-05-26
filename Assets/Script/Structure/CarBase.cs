@@ -4,7 +4,7 @@ using System.Collections;
 public class CarBase : ObjectBase {
 	public enum CarState { ENGINE_OFF, GEARS_N, GEARS_R, GEARS_1, GEARS_2, 
 		GEARS_3, GEARS_4, GEARS_5 };
-	private bool isClutched;				//클러치상태
+	protected bool isClutched;				//클러치상태
 	private bool isDownGear;				//기어조작상태
 	private bool isBacking;					//후진상태
 
@@ -172,10 +172,8 @@ public class CarBase : ObjectBase {
 		rigidBody.velocity = realVector;
 	}
 	void UpdateLimit() {
-		if (!isDownGear) {
-			if (limitedVelocity >= velocity) {
-				limitedVelocity = gearFactor * maximumVelocity;
-			}
+		if (!isDownGear && limitedVelocity < gearFactor * maximumVelocity) {
+			limitedVelocity = gearFactor * maximumVelocity;
 		} else {
 			limitedVelocity -= 1.0f * Time.deltaTime;
 			if(limitedVelocity < gearFactor * maximumVelocity) {
@@ -199,7 +197,9 @@ public class CarBase : ObjectBase {
 			return;
 		}
 		RPM = (velocity + reverseVelocty) / (gearFactor * maximumVelocity);
-		if (RPM < 0.1f) {
+		if (carState == CarState.ENGINE_OFF) {
+			RPM = 0.0f;
+		} else  if (carState == CarState.GEARS_N) {
 			RPM = 0.1f;
 		}
 	}
