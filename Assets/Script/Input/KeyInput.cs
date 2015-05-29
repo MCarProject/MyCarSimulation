@@ -24,6 +24,11 @@ public class KeyInput : MonoBehaviour {
 		if(Input.GetKey(KeyCode.Space)) {
 			player.Brake ();
 		}
+		if(Input.GetKeyDown (KeyCode.UpArrow)) {
+			player.ChangeGear(false);
+		} else if(Input.GetKeyDown (KeyCode.DownArrow)) {
+			player.ChangeGear(true);
+		}
 		if (Input.GetAxis ("Mouse ScrollWheel") < 0) {
 			player.ChangeGear(true);
 		} else if (Input.GetAxis ("Mouse ScrollWheel") > 0) {
