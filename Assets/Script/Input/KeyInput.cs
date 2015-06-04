@@ -6,6 +6,8 @@ public class KeyInput : MonoBehaviour {
 
 	void Start () {
 		player = GameObject.Find ("Player").GetComponent<CarBase> ();
+		Cursor.lockState = CursorLockMode.Locked;
+		Cursor.visible = false;
 	}
 
 	void LateUpdate() {
@@ -16,13 +18,19 @@ public class KeyInput : MonoBehaviour {
 	}
 
 	void GetKeyInput() {
-		if(Input.GetKey(KeyCode.W)) {
-			player.Accelerate();
-		} else if(Input.GetKey(KeyCode.S)) {
-			player.Reverse ();
+		if (Input.GetKeyDown (KeyCode.Tab)) {
+			if(Cursor.lockState == CursorLockMode.Locked) {
+				Cursor.lockState = CursorLockMode.None;
+				Cursor.visible = true;
+			} else {
+				Cursor.lockState = CursorLockMode.Locked;
+				Cursor.visible = false;
+			}
 		}
-		if(Input.GetKey(KeyCode.Space)) {
-			player.Brake ();
+		if (Input.GetKey (KeyCode.Space)) {
+			player.OnBrake (true);
+		} else if (Input.GetKeyUp (KeyCode.Space)) {
+			player.OnBrake (false);
 		}
 		if(Input.GetKeyDown (KeyCode.UpArrow)) {
 			player.ChangeGear(false);
@@ -42,7 +50,5 @@ public class KeyInput : MonoBehaviour {
 		} else if(Input.GetKeyUp(KeyCode.C)) {
 			player.OnClutched(false);
 		}
-
-		player.Turn(Input.GetAxis("Horizontal"));
 	}
 }

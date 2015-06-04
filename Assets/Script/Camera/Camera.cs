@@ -2,8 +2,8 @@
 using System.Collections;
 
 public class Camera : MonoBehaviour {
-	const float minimumDistance = 3.0f;
-	const float maximumDistance = 8.0f;
+	const float minimumDistance = 5.0f;
+	const float maximumDistance = 9.0f;
 
 	GameObject target;
 	float trackingDistance;	//normalize 사용!!
@@ -13,7 +13,7 @@ public class Camera : MonoBehaviour {
 
 	void Start () {
 		target = GameObject.Find ("Player");
-		trackingDistance = 5.5f;
+		trackingDistance = 7.0f;
 		mouseSensitivity = 2.0f;
 
 		offset = new Vector3(-trackingDistance, trackingDistance, -trackingDistance);
@@ -30,8 +30,10 @@ public class Camera : MonoBehaviour {
 		Vector3 tempPosition = target.transform.position + (offset * trackingDistance);
 
 		this.transform.position = tempPosition;
-		this.transform.RotateAround (target.transform.position, Vector3.up, Input.GetAxis ("Mouse X")*mouseSensitivity);
 
+		if (Cursor.lockState == CursorLockMode.None) { return; }
+
+		this.transform.RotateAround (target.transform.position, Vector3.up, Input.GetAxis ("Mouse X")*mouseSensitivity);
 
 		float temp = this.transform.rotation.eulerAngles.x;
 		if (temp > 70 && Input.GetAxis ("Mouse Y") > 0) {
@@ -46,10 +48,10 @@ public class Camera : MonoBehaviour {
 	}
 	void SetCameraDistance() {
 		if (Input.GetKey (KeyCode.KeypadPlus)) {
-			trackingDistance += Time.deltaTime * 1.5f;
+			trackingDistance += Time.deltaTime * 2.0f;
 		}
 		if (Input.GetKey (KeyCode.KeypadMinus)) {
-			trackingDistance -= Time.deltaTime * 1.5f;
+			trackingDistance -= Time.deltaTime * 2.0f;
 		}
 		if (trackingDistance > maximumDistance) {
 			trackingDistance = maximumDistance;

@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 
 public class MeterUI : MonoBehaviour {
+	private Image ClutchHighlight;
 	private Image KMHArrow;
 	private Text KMHState;
 	private Text GearState;
@@ -16,6 +17,7 @@ public class MeterUI : MonoBehaviour {
 	private float durability;
 
 	void Start () {
+		ClutchHighlight = GameObject.Find ("ClutchHighlight").GetComponent<Image> ();
 		KMHArrow = GameObject.Find ("KMHArrow").GetComponent<Image> ();
 		KMHState = GameObject.Find ("KMHState").GetComponent<Text> ();
 		GearState = GameObject.Find ("GearState").GetComponent<Text> ();
@@ -28,6 +30,7 @@ public class MeterUI : MonoBehaviour {
 	}
 
 	void Update () {
+		UpdateClutchHighlight ();
 		UpdateKMHArrow ();
 		UpdateKMHState ();
 		UpdateGearState ();
@@ -36,13 +39,20 @@ public class MeterUI : MonoBehaviour {
 		UpdateRPMState ();
 		UpdateDurabilityState ();
 	}
-	
+
+	void UpdateClutchHighlight() {
+		if (Player.playerClutch) {
+			ClutchHighlight.enabled = true;
+		} else {
+			ClutchHighlight.enabled = false;
+		}
+	}
 	void UpdateKMHArrow() {
 		Quaternion tempRotation = Quaternion.Euler (new Vector3 (0.0f, 0.0f, -KMH * 1.333333f));
 		KMHArrow.transform.rotation = tempRotation;
 	}
 	void UpdateKMHState() {
-		KMH = Player.playerVelocity * 6.0f;
+		KMH = Player.playerVelocity * 4.0f;
 		float tempKMH = Mathf.Round (KMH * 10.0f);
 		string tempKMHS = (tempKMH / 10.0f).ToString ();
 		if (tempKMH % 10 == 0) {

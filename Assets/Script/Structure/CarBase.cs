@@ -1,41 +1,41 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CarBase : ObjectBase {
+public class CarBase : MonoBehaviour {
 	public enum CarState { ENGINE_OFF, GEARS_N, GEARS_R, GEARS_1, GEARS_2, 
 		GEARS_3, GEARS_4, GEARS_5 };
-	protected bool isClutched;				//클러치상태
-	private bool isDownGear;				//기어조작상태
-	private bool isBacking;					//후진상태
 
-	protected float RPM;					//엔진회전속도	(0~1)
-	protected float maximumVelocity;		//최대속도		(15~30 /s)
-	protected float limitedVelocity;		//한계속도
-	protected float velocity;				//속도
-	protected float maximumReverseVelocity;	//역방향최대속도
-	protected float reverseVelocty;			//역방향속도
-	protected float standardAcceleration;	//기준가속도
-	protected float acceleration;			//가속도
-	protected float gearValue;				//기어수치
-	protected float gearFactor;				//기어계수
-	protected float collisionFactor;		//충돌계수	(0.2~0.6)
-	protected float earthingFactor;			//접지계수	(0.5~0.9)
-	protected float turnRate;				//회전율		(40~60 degree/s)
-	protected float durability;				//내구도
-	protected CarState carState;			//기어상태
+	protected float std_torque = 200.0f;					//기준토크
+	protected float std_maximumVelocity = 20.0f;			//기준최대속력
+	protected float maximumTurnAngle = 40.0f;				//최대회전각
+	protected float RPM = 0.0f;								//엔진회전속도
+
+	protected bool onBrake = false;
+	protected bool isClutched = false;						//클러치상태
+	private bool isDownGear = false;						//기어조작상태
+
+	protected float gearFactor = 0.0f;						//기어계수
+	protected float durability = 1.0f;						//내구도
+	protected CarState carState = CarState.GEARS_1;			//기어상태
 	
 	protected Rigidbody rigidBody;
-	
-	void Start () {
-		isClutched = false;
-		isDownGear = false;
-		isBacking = false;
+
+	public WheelCollider[] wheelCollider = new WheelCollider[4];
+	public Transform[] wheelTransform = new Transform[4];
+
+	/* Initialization for rigidbody and center of mass*/
+	protected void Initialize() {
+		rigidBody = this.GetComponent<Rigidbody> ();
+		Vector3 tempCenterOfMass = rigidBody.centerOfMass;
+		tempCenterOfMass.y -= 0.2f;
+		rigidBody.centerOfMass = tempCenterOfMass;
 	}
 
-	/* Input for engine control*/
+	/* Engine control with Input */
 	public void OnClutched(bool on) {
 		if (on) {
 			isClutched = true;
+			Brake_Weak();
 		} else {
 			isClutched = false;
 		}
@@ -47,6 +47,7 @@ public class CarBase : ObjectBase {
 		}
 		if (!isClutched) {
 			carState = CarState.ENGINE_OFF;
+			Brake_Weak();
 			gearFactor = 0.0f;
 		} else {
 			if (!isDownGear) {
@@ -91,130 +92,110 @@ public class CarBase : ObjectBase {
 				}
 			}
 		}
-		acceleration = (1 / gearFactor) * standardAcceleration;
 	}
 	public void EngineControl() {
 		if (carState == CarState.ENGINE_OFF) {
 			carState = CarState.GEARS_N;
 			gearFactor = 0.0f;
+			SoundManager.StartingEffectManager(true);
 		} else {
 			carState = CarState.ENGINE_OFF;
 			gearFactor = 0.0f;
+			Brake_Weak();
 		}
-	}
-	
-	/* Input for movement */
-	public void Accelerate() {
-		if (carState == CarState.ENGINE_OFF ||
-		    carState == CarState.GEARS_N ||
-		    carState == CarState.GEARS_R ||
-		    isClutched) {
-			return;
-		}
-		velocity += acceleration * Time.deltaTime;
-		if (velocity > limitedVelocity) {
-			velocity = limitedVelocity;
-		}
-		reverseVelocty -= standardAcceleration * 5.0f * Time.deltaTime;
-		if (reverseVelocty < 0) {
-			reverseVelocty = 0.0f;
-		}
-	}
-	public void Reverse() {
-		velocity -= standardAcceleration * 5.0f * Time.deltaTime;
-		if (velocity < 0) {
-			velocity = 0.0f;
-		}
-		if (carState != CarState.GEARS_R ||
-		    isClutched) {
-			return;
-		}
-		reverseVelocty += standardAcceleration * 2.5f * Time.deltaTime;
-		if (reverseVelocty > maximumReverseVelocity) {
-			reverseVelocty = maximumReverseVelocity;
-		}
-	}
-	public void Brake() {
-		velocity -= standardAcceleration * 5.0f * Time.deltaTime;
-		if (velocity < 0) {
-			velocity = 0.0f;
-		}
-		reverseVelocty -= standardAcceleration * 5.0f * Time.deltaTime;
-		if (reverseVelocty > maximumReverseVelocity) {
-			reverseVelocty = 0.0f;
-		}
-	}
-	public void Turn(float axis) {
-		if (velocity == 0 && reverseVelocty == 0) {
-			return;
-		}
-		if (isBacking) {
-			axis = -axis;
-		}
-		this.transform.Rotate (0, (axis * turnRate * Time.deltaTime), 0);
 	}
 
-	/* Movement processing */
-	protected void Movement() {
-		UpdateLimit ();
-		Friction ();
-		UpdateRPM ();
-		float realVelocity;
-		realVelocity = velocity - reverseVelocty;
-		if (realVelocity < 0) {
-			isBacking = true;
-		} else {
-			isBacking = false;
-		}
-		Vector3 realVector = new Vector3 (this.transform.forward.x * realVelocity * earthingFactor, 
-		                            rigidBody.velocity.y, 
-		                                  this.transform.forward.z * realVelocity * earthingFactor);
-		rigidBody.velocity = realVector;
-	}
-	void UpdateLimit() {
-		if (!isDownGear && limitedVelocity < gearFactor * maximumVelocity) {
-			limitedVelocity = gearFactor * maximumVelocity;
-		} else {
-			limitedVelocity -= 1.0f * Time.deltaTime;
-			if(limitedVelocity < gearFactor * maximumVelocity) {
-				limitedVelocity = gearFactor * maximumVelocity;
+	/* Update wheel transform */
+	public void UpdateWheelTransform() {
+		for(int i=0; i<4; i++) {
+			if(wheelCollider[i].rpm > 0) {
+				wheelTransform[i].Rotate(new Vector3(0,0,-rigidBody.velocity.magnitude * 6.28f));
+			} else {
+				wheelTransform[i].Rotate(new Vector3(0,0,rigidBody.velocity.magnitude * 6.28f));
 			}
 		}
 	}
-	void Friction() {
-		velocity -= standardAcceleration * 0.5f * Time.deltaTime;
-		if (velocity < 0) {
-			velocity = 0.0f;
-		}
-		reverseVelocty -= standardAcceleration * 0.5f * Time.deltaTime;
-		if (reverseVelocty < 0) {
-			reverseVelocty = 0.0f;
+
+	/* Car control with Input (Player.cs) */
+	protected void Accelerate() {
+		if (carState == CarState.ENGINE_OFF) { return; }
+		float maximumVelocity = std_maximumVelocity * gearFactor;
+		if (Input.GetAxis ("Vertical") < 0) {
+			if (carState == CarState.GEARS_R) {
+				if(isClutched) { return; }
+				for (int i=0; i<4; i++) {
+					wheelCollider [i].motorTorque = std_torque * Input.GetAxis ("Vertical") * 0.6f;
+				}
+			} else {
+				Brake_Weak();
+				return;
+			}
+		} else {
+			if (carState == CarState.GEARS_N || isClutched) { return; }
+			if(carState == CarState.GEARS_R) {
+				Brake_Weak();
+				return;
+			}
+			if (rigidBody.velocity.magnitude < maximumVelocity) {
+				for (int i=0; i<4; i++) {
+					wheelCollider [i].motorTorque = (std_torque - (std_torque * (gearFactor - 0.4f))) * Input.GetAxis ("Vertical");
+					if(!onBrake){
+						wheelCollider [i].brakeTorque = 0.0f;
+					}
+				}
+			} else {
+				for (int i=0; i<4; i++) {
+					wheelCollider [i].motorTorque = 0.0f;
+					wheelCollider [i].brakeTorque = (std_torque - (std_torque * (gearFactor - 0.4f)));
+				}
+			}
 		}
 	}
-	void UpdateRPM() {
-		if (limitedVelocity == 0) {
-			RPM = 0.0f;
-			return;
+	protected void Brake_Weak () {
+		for (int i=0; i<4; i++) {
+			wheelCollider [i].motorTorque = 0.0f;
+			wheelCollider [i].brakeTorque = std_torque;
 		}
-		RPM = (velocity + reverseVelocty) / (gearFactor * maximumVelocity);
+	}
+	protected void Brake_Strong() {
+		if (onBrake) {
+			for (int i=0; i<4; i++) {
+				wheelCollider [i].motorTorque = 0.0f;
+				wheelCollider [i].brakeTorque = std_torque * 3.0f;
+			}
+		} else {
+			for (int i=0; i<4; i++) {
+				wheelCollider [i].brakeTorque = 0.0f;
+			}
+		}
+	}
+	protected void Turn() {
+		for (int i=0; i<2; i++) {
+			Vector3 tempRotation = wheelTransform[i].rotation.eulerAngles;
+			tempRotation.y = this.transform.rotation.eulerAngles.y + 270 + maximumTurnAngle * Input.GetAxis("Horizontal");
+			wheelCollider[i].steerAngle = maximumTurnAngle * Input.GetAxis("Horizontal");
+			wheelTransform[i].rotation = Quaternion.Euler(tempRotation);
+		}
+	}
+	public void OnBrake(bool on) {
+		if (on) {
+			onBrake = true;
+		}
+		else {
+			onBrake = false;
+		}
+	}
+
+	/* Update RPM */
+	protected void UpdateRPM() {
+		RPM = rigidBody.velocity.magnitude / (std_maximumVelocity * gearFactor);
+		if (RPM < 0.1f) {
+			RPM = 0.1f;
+		}
 		if (carState == CarState.ENGINE_OFF) {
 			RPM = 0.0f;
 		} else  if (carState == CarState.GEARS_N) {
 			RPM = 0.1f;
-		}
-	}
-	
-	/* Initialize */
-	public void InitializeCar() {
-		InitializeBase ();
-	}
-	
-	/* Modify velocity when OnCollision */
-	void OnCollisionEnter(Collision collision) {
-		if (collision.gameObject.name == "Cube") {
-			velocity = velocity * 0.9f;
-		} else if (collision.gameObject.name != "Terrain") {
-			velocity = velocity * collisionFactor;
 		}
 	}
 }
