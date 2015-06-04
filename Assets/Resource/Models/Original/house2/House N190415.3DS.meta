@@ -1,0 +1,232 @@
+fileFormatVersion: 2
+guid: f75e84733970c2d4aa870a7dcf899d1e
+timeCreated: 1433411625
+licenseType: Free
+ModelImporter:
+  serializedVersion: 18
+  fileIDToRecycleName:
+    100000: 0      011
+    100002: 1      011
+    100004: 10     011
+    100006: 11     011
+    100008: 12     011
+    100010: 13     011
+    100012: 14     011
+    100014: 15     011
+    100016: 17     011
+    100018: 18     011
+    100020: 19     011
+    100022: 2      011
+    100024: 20     011
+    100026: 21     011
+    100028: 22     011
+    100030: 23     011
+    100032: 24     011
+    100034: 25     011
+    100036: 3      011
+    100038: 5      011
+    100040: 6      011
+    100042: 7      011
+    100044: 8      011
+    100046: 9      011
+    100048: ATiles001
+    100050: ATiles002
+    100052: ATiles003
+    100054: ATiles004
+    100056: ATiles005
+    100058: ATiles006
+    100060: //RootNode
+    100062: Object181
+    100064: Object182
+    100066: Object183
+    400000: 0      011
+    400002: 1      011
+    400004: 10     011
+    400006: 11     011
+    400008: 12     011
+    400010: 13     011
+    400012: 14     011
+    400014: 15     011
+    400016: 17     011
+    400018: 18     011
+    400020: 19     011
+    400022: 2      011
+    400024: 20     011
+    400026: 21     011
+    400028: 22     011
+    400030: 23     011
+    400032: 24     011
+    400034: 25     011
+    400036: 3      011
+    400038: 5      011
+    400040: 6      011
+    400042: 7      011
+    400044: 8      011
+    400046: 9      011
+    400048: ATiles001
+    400050: ATiles002
+    400052: ATiles003
+    400054: ATiles004
+    400056: ATiles005
+    400058: ATiles006
+    400060: //RootNode
+    400062: Object181
+    400064: Object182
+    400066: Object183
+    2300000: 0      011
+    2300002: 1      011
+    2300004: 10     011
+    2300006: 11     011
+    2300008: 12     011
+    2300010: 13     011
+    2300012: 14     011
+    2300014: 15     011
+    2300016: 17     011
+    2300018: 18     011
+    2300020: 19     011
+    2300022: 2      011
+    2300024: 20     011
+    2300026: 21     011
+    2300028: 22     011
+    2300030: 23     011
+    2300032: 24     011
+    2300034: 25     011
+    2300036: 3      011
+    2300038: 5      011
+    2300040: 6      011
+    2300042: 7      011
+    2300044: 8      011
+    2300046: 9      011
+    2300048: ATiles001
+    2300050: ATiles002
+    2300052: ATiles003
+    2300054: ATiles004
+    2300056: ATiles005
+    2300058: ATiles006
+    2300060: Object181
+    2300062: Object182
+    2300064: Object183
+    3300000: 0      011
+    3300002: 1      011
+    3300004: 10     011
+    3300006: 11     011
+    3300008: 12     011
+    3300010: 13     011
+    3300012: 14     011
+    3300014: 15     011
+    3300016: 17     011
+    3300018: 18     011
+    3300020: 19     011
+    3300022: 2      011
+    3300024: 20     011
+    3300026: 21     011
+    3300028: 22     011
+    3300030: 23     011
+    3300032: 24     011
+    3300034: 25     011
+    3300036: 3      011
+    3300038: 5      011
+    3300040: 6      011
+    3300042: 7      011
+    3300044: 8      011
+    3300046: 9      011
+    3300048: ATiles001
+    3300050: ATiles002
+    3300052: ATiles003
+    3300054: ATiles004
+    3300056: ATiles005
+    3300058: ATiles006
+    3300060: Object181
+    3300062: Object182
+    3300064: Object183
+    4300000: ATiles001
+    4300002: ATiles002
+    4300004: ATiles003
+    4300006: ATiles004
+    4300008: ATiles005
+    4300010: ATiles006
+    4300012: Object181
+    4300014: Object182
+    4300016: Object183
+    4300018: 0      011
+    4300020: 1      011
+    4300022: 2      011
+    4300024: 3      011
+    4300026: 5      011
+    4300028: 6      011
+    4300030: 7      011
+    4300032: 8      011
+    4300034: 9      011
+    4300036: 10     011
+    4300038: 11     011
+    4300040: 12     011
+    4300042: 13     011
+    4300044: 14     011
+    4300046: 15     011
+    4300048: 17     011
+    4300050: 18     011
+    4300052: 19     011
+    4300054: 20     011
+    4300056: 21     011
+    4300058: 22     011
+    4300060: 23     011
+    4300062: 24     011
+    4300064: 25     011
+  materials:
+    importMaterials: 1
+    materialName: 0
+    materialSearch: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    optimizeGameObjects: 0
+    motionNodeName: 
+    animationCompression: 1
+    animationRotationError: .5
+    animationPositionError: .5
+    animationScaleError: .5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    clipAnimations: []
+    isReadable: 1
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 0
+    importBlendShapes: 1
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    optimizeMeshForGPU: 1
+    keepQuads: 0
+    weldVertices: 1
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    splitTangentsAcrossUV: 1
+    normalImportMode: 0
+    tangentImportMode: 1
+  importAnimation: 1
+  copyAvatar: 0
+  humanDescription:
+    human: []
+    skeleton: []
+    armTwist: .5
+    foreArmTwist: .5
+    upperLegTwist: .5
+    legTwist: .5
+    armStretch: .0500000007
+    legStretch: .0500000007
+    feetSpacing: 0
+    rootMotionBoneName: 
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  animationType: 0
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
