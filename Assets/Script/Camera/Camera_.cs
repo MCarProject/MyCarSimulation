@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Camera : MonoBehaviour {
+public class Camera_ : MonoBehaviour {
 	const float minimumDistance = 5.0f;
 	const float maximumDistance = 9.0f;
 
