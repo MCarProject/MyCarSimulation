@@ -4,11 +4,16 @@ using System.Collections;
 public class SoundManager : MonoBehaviour {
 	public static AudioSource carStartingEffect;
 	AudioSource carDrivingEffect;
+	AudioSource carEngineEffect;
 
 	// Use this for initialization
 	void Start () {
 		carStartingEffect = GameObject.Find ("CarStartingEffect").GetComponent<AudioSource> ();
 		carDrivingEffect = GameObject.Find ("CarDrivingEffect").GetComponent<AudioSource> ();
+		//carEngineEffect = GetComponentsInChildren<AudioSource>;
+
+		carStartingEffect.volume = GlobalConfig.worldEffect;
+		carDrivingEffect.volume = GlobalConfig.worldEffect;
 
 		carStartingEffect.Play ();
 	}

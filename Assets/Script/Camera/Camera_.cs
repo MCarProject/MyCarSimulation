@@ -6,23 +6,48 @@ public class Camera_ : MonoBehaviour {
 	const float maximumDistance = 9.0f;
 
 	GameObject target;
+	GameObject viewPoint;
 	float trackingDistance;	//normalize 사용!!
 	float mouseSensitivity;
+
+	bool isFirstPersonView = false;
+	Vector3 firstPersonRotation = new Vector3 (0, 0, 0);
 	
 	Vector3 offset;
 
 	void Start () {
 		target = GameObject.Find ("Player");
+		viewPoint = GameObject.Find ("ViewPoint");
 		trackingDistance = 7.0f;
 		mouseSensitivity = 2.0f;
 
 		offset = new Vector3(-trackingDistance, trackingDistance, -trackingDistance);
 	}
 	void Update () {
+		SetViewPerson ();
+		//Debug.Log (Cursor.lockState + ", " + Cursor.visible);
 	}
 	void LateUpdate() {
-		SetCameraPosition ();
-		SetCameraDistance ();
+		if (isFirstPersonView) {
+			SetFirstCameraPosition();
+			SetFirstCameraRotation();
+		} else {
+			SetCameraPosition ();
+			SetCameraDistance ();
+		}
+	}
+
+	void SetViewPerson() {
+		if (Input.GetKeyDown (KeyCode.V)) {
+			isFirstPersonView = !isFirstPersonView;
+
+			if(isFirstPersonView) {
+				Camera.main.fieldOfView = 80.0f;
+			}
+			else {
+				Camera.main.fieldOfView = 60.0f;
+			}
+		}
 	}
 
 	void SetCameraPosition() {
@@ -58,5 +83,22 @@ public class Camera_ : MonoBehaviour {
 		} else if (trackingDistance < minimumDistance) {
 			trackingDistance = minimumDistance;
 		}
+	}
+
+	void SetFirstCameraPosition() {
+		this.transform.position = viewPoint.transform.position;
+	}
+	void SetFirstCameraRotation() {
+		firstPersonRotation.y += Input.GetAxis ("Mouse X") * 1.5f;
+		if (firstPersonRotation.y > 50.0f) {
+			firstPersonRotation.y = 50.0f;
+		} else if(firstPersonRotation.y < -50.0f) {
+			firstPersonRotation.y = -50.0f;
+		}
+
+		Vector3 tempRotation = target.transform.rotation.eulerAngles;
+		tempRotation += firstPersonRotation;
+
+		this.transform.rotation = Quaternion.Euler (tempRotation);
 	}
 }

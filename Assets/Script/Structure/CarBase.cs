@@ -7,7 +7,7 @@ public class CarBase : MonoBehaviour {
 
 	protected float std_torque = 200.0f;					//기준토크
 	protected float std_maximumVelocity = 20.0f;			//기준최대속력
-	protected float maximumTurnAngle = 40.0f;				//최대회전각
+	protected float maximumTurnAngle = 20.0f;				//최대회전각
 	protected float RPM = 0.0f;								//엔진회전속도
 
 	protected bool onBrake = false;
@@ -22,6 +22,7 @@ public class CarBase : MonoBehaviour {
 
 	public WheelCollider[] wheelCollider = new WheelCollider[4];
 	public Transform[] wheelTransform = new Transform[4];
+	public Transform handleTransform;
 
 	/* Initialization for rigidbody and center of mass*/
 	protected void Initialize() {
@@ -109,9 +110,9 @@ public class CarBase : MonoBehaviour {
 	public void UpdateWheelTransform() {
 		for(int i=0; i<4; i++) {
 			if(wheelCollider[i].rpm > 0) {
-				wheelTransform[i].Rotate(new Vector3(0,0,-rigidBody.velocity.magnitude * 6.28f));
+				wheelTransform[i].Rotate(new Vector3(0,0,-rigidBody.velocity.magnitude * 3.14f));
 			} else {
-				wheelTransform[i].Rotate(new Vector3(0,0,rigidBody.velocity.magnitude * 6.28f));
+				wheelTransform[i].Rotate(new Vector3(0,0,rigidBody.velocity.magnitude * 3.14f));
 			}
 		}
 	}
@@ -172,10 +173,14 @@ public class CarBase : MonoBehaviour {
 	protected void Turn() {
 		for (int i=0; i<2; i++) {
 			Vector3 tempRotation = wheelTransform[i].rotation.eulerAngles;
-			tempRotation.y = this.transform.rotation.eulerAngles.y + 270 + maximumTurnAngle * Input.GetAxis("Horizontal");
+			tempRotation.y = 270 + maximumTurnAngle * Input.GetAxis("Horizontal");
 			wheelCollider[i].steerAngle = maximumTurnAngle * Input.GetAxis("Horizontal");
+			tempRotation += this.transform.rotation.eulerAngles;
 			wheelTransform[i].rotation = Quaternion.Euler(tempRotation);
 		}
+		Vector3 tempRotaion = new Vector3 (18.94f, 0, -120 * Input.GetAxis ("Horizontal"));
+		tempRotaion += this.transform.rotation.eulerAngles;
+		handleTransform.rotation = Quaternion.Euler (tempRotaion);
 	}
 	public void OnBrake(bool on) {
 		if (on) {

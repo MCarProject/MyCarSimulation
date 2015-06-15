@@ -14,11 +14,23 @@ public class Player : CarBase {
 		std_torque = 300.0f;
 		std_maximumVelocity = 30.0f;
 		maximumTurnAngle = 30.0f;
+		
 
 		carState = CarState.GEARS_N;
 		Initialize ();
 
 		debugUI = GameObject.Find ("Debug").GetComponent<Text> ();
+
+		PlayerInit ();
+	}
+
+	void PlayerInit () {
+		std_torque = GlobalConfig.playerAcceleration;
+		std_maximumVelocity = GlobalConfig.playerSpeed;
+
+		Vector3 tempCenterOfMass = rigidBody.centerOfMass;
+		tempCenterOfMass.y -= GlobalConfig.playerStability;
+		rigidBody.centerOfMass = tempCenterOfMass;
 	}
 
 	void Update () {
