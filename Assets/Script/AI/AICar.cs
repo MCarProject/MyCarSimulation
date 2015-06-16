@@ -8,7 +8,6 @@ public class AICar : MonoBehaviour {
 	//Path finding
 	public WorldManager worldManager;
 	private List<Transform> path;
-	public Transform pathGroup;
 	public int currentPathObj;
 	public float maxSteer = 50.0f;		//최대회전각
 	float distFromPath = 10.0f;			//회전시작거리
@@ -80,11 +79,11 @@ public class AICar : MonoBehaviour {
 		if (steerVector.magnitude <= distDeceller) {
 			onCorner = true;
 			cornerTimer = 2.0f;
-			topSpeed = 20.0f;
+			topSpeed = 40.0f;
 		}	
 		if (cornerTimer < 0) {
 			onCorner = false;
-			topSpeed = 40.0f;
+			topSpeed = 60.0f;
 		}
 		if (onCorner) {
 			cornerTimer -= Time.deltaTime;
@@ -170,12 +169,12 @@ public class AICar : MonoBehaviour {
 		if (Physics.Raycast (pos, transform.forward, out hit, sensorLength)) {
 			if (hit.transform.tag != "Terrain") {  
 				sensorFlag++;  
-				avoidSenstivity -= 1.0f;
+				avoidSenstivity -= 1.2f;
 				Debug.DrawLine (pos, hit.point, Color.red);
 			}  
 		} else if (Physics.Raycast (pos, rightAngle, out hit, sensorLength)) {  
 			if (hit.transform.tag != "Terrain") {  
-				avoidSenstivity -= 0.5f;   
+				avoidSenstivity -= 0.8f;   
 				sensorFlag++;  
 				Debug.DrawLine (pos, hit.point, Color.red);
 			}  
@@ -187,13 +186,13 @@ public class AICar : MonoBehaviour {
 		if (Physics.Raycast (pos, transform.forward, out hit, sensorLength)) {  
 			if (hit.transform.tag != "Terrain") {  
 				sensorFlag++;  
-				avoidSenstivity += 1.0f;   
+				avoidSenstivity += 1.2f;   
 				Debug.DrawLine (pos, hit.point, Color.red);  
 			}  
 		} else if (Physics.Raycast (pos, leftAngle, out hit, sensorLength)) {  
 			if (hit.transform.tag != "Terrain") {  
 				sensorFlag++;  
-				avoidSenstivity += 0.5f;  
+				avoidSenstivity += 0.8f;  
 				Debug.DrawLine (pos, hit.point, Color.red);  
 			}  
 		}
@@ -205,7 +204,7 @@ public class AICar : MonoBehaviour {
 		if (Physics.Raycast (pos, transform.right, out hit, sidewaySensorLength)) {
 			if (hit.transform.tag != "Terrain") {  
 				sensorFlag++;  
-				avoidSenstivity -= 0.5f;  
+				avoidSenstivity -= 0.8f;  
 				Debug.DrawLine (pos, hit.point, Color.red);  
 			}  
 		}
@@ -215,7 +214,7 @@ public class AICar : MonoBehaviour {
 		if (Physics.Raycast (pos, -transform.right, out hit, sidewaySensorLength)) {
 			if (hit.transform.tag != "Terrain") {  
 				sensorFlag++;  
-				avoidSenstivity += 0.5f;  
+				avoidSenstivity += 0.8f;  
 				Debug.DrawLine (pos, hit.point, Color.red);  
 			}  
 		}

@@ -28,7 +28,6 @@ public class WorldManager : MonoBehaviour {
 	public int GetMyNode(Vector3 myPosition) {
 		float tempDistance = Mathf.Infinity;
 		int nodeNumber = 0;
-		Debug.Log (nodeSet);
 		foreach (GraphNode nodes in nodeSet) {
 			float distance = (nodes.transform.position - myPosition).magnitude;
 			if(tempDistance > distance) {

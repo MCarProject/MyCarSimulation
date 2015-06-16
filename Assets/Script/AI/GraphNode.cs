@@ -13,6 +13,7 @@ public class GraphNode : MonoBehaviour {
 		Gizmos.color = Color.red;
 		Gizmos.DrawWireSphere (this.transform.position, 0.2f);
 		for(int i=0; i<connectedList.Count; i++) {
+			if(connectedList[i] == null) { continue; }
 			Gizmos.DrawLine (this.transform.position, connectedList[i].transform.position);
 		}
 	}
