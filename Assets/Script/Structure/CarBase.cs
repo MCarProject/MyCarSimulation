@@ -108,12 +108,17 @@ public class CarBase : MonoBehaviour {
 
 	/* Update wheel transform */
 	public void UpdateWheelTransform() {
-		for(int i=0; i<4; i++) {
-			if(wheelCollider[i].rpm > 0) {
-				wheelTransform[i].Rotate(new Vector3(0,0,-rigidBody.velocity.magnitude * 3.14f));
+		for (int i = 0; i<4; i++) {
+			wheelTransform[i].Rotate (0, 0, -wheelCollider[i].rpm / 60 * 360 * Time.deltaTime);
+			
+			RaycastHit hit;
+			Vector3 wheelPos;
+			if (Physics.Raycast (wheelCollider[i].transform.position, -wheelCollider[i].transform.up, out hit, wheelCollider[i].radius + wheelCollider[i].suspensionDistance)) {
+				wheelPos = hit.point + wheelCollider[i].transform.up * wheelCollider[i].radius;
 			} else {
-				wheelTransform[i].Rotate(new Vector3(0,0,rigidBody.velocity.magnitude * 3.14f));
+				wheelPos = wheelCollider[i].transform.position - wheelCollider[i].transform.up * wheelCollider[i].suspensionDistance;
 			}
+			wheelTransform[i].position = wheelPos;
 		}
 	}
 
@@ -172,11 +177,18 @@ public class CarBase : MonoBehaviour {
 	}
 	protected void Turn() {
 		for (int i=0; i<2; i++) {
+			wheelCollider[i].steerAngle = maximumTurnAngle * Input.GetAxis("Horizontal");
+
+			/*
 			Vector3 tempRotation = wheelTransform[i].rotation.eulerAngles;
 			tempRotation.y = 270 + maximumTurnAngle * Input.GetAxis("Horizontal");
-			wheelCollider[i].steerAngle = maximumTurnAngle * Input.GetAxis("Horizontal");
 			tempRotation += this.transform.rotation.eulerAngles;
 			wheelTransform[i].rotation = Quaternion.Euler(tempRotation);
+			*/
+			
+			Vector3 temp = wheelTransform[i].eulerAngles;
+			temp.y = 270 + this.transform.eulerAngles.y + wheelCollider[i].steerAngle;
+			wheelTransform[i].eulerAngles = temp;
 		}
 		Vector3 tempRotaion = new Vector3 (18.94f, 0, -120 * Input.GetAxis ("Horizontal"));
 		tempRotaion += this.transform.rotation.eulerAngles;

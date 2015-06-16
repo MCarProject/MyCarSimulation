@@ -50,5 +50,19 @@ public class KeyInput : MonoBehaviour {
 		} else if(Input.GetKeyUp(KeyCode.C)) {
 			player.OnClutched(false);
 		}
+		if(Input.GetKeyDown(KeyCode.E)) {
+			SoundManager.HornEffectManager(true);
+		} else if(Input.GetKeyUp(KeyCode.E)) {
+			SoundManager.HornEffectManager(false);
+		}
+		if(Input.GetKeyDown(KeyCode.F)) {
+			for(int i=0; i<2; i++) {
+				if(Player.headLight[i].enabled) {
+					Player.headLight[i].enabled = false;
+				} else {
+					Player.headLight[i].enabled = true;
+				}
+			}
+		}
 	}
 }

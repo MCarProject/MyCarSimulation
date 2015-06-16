@@ -4,16 +4,17 @@ using System.Collections;
 public class SoundManager : MonoBehaviour {
 	public static AudioSource carStartingEffect;
 	AudioSource carDrivingEffect;
-	AudioSource carEngineEffect;
+	static AudioSource carHornEffect;
 
 	// Use this for initialization
 	void Start () {
 		carStartingEffect = GameObject.Find ("CarStartingEffect").GetComponent<AudioSource> ();
 		carDrivingEffect = GameObject.Find ("CarDrivingEffect").GetComponent<AudioSource> ();
-		//carEngineEffect = GetComponentsInChildren<AudioSource>;
+		carHornEffect = GameObject.Find ("CarHornEffect").GetComponent<AudioSource> ();
 
 		carStartingEffect.volume = GlobalConfig.worldEffect;
 		carDrivingEffect.volume = GlobalConfig.worldEffect;
+		carHornEffect.volume = GlobalConfig.worldEffect * 0.7f;
 
 		carStartingEffect.Play ();
 	}
@@ -45,6 +46,16 @@ public class SoundManager : MonoBehaviour {
 			if(carDrivingEffect.isPlaying) {
 				carDrivingEffect.Stop ();
 			}
+		}
+	}
+
+	public static void HornEffectManager(bool on) {
+		if (on) {
+			if (!carHornEffect.isPlaying) {
+				carHornEffect.Play ();
+			}
+		} else {
+			carHornEffect.Stop ();
 		}
 	}
 }

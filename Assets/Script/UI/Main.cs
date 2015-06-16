@@ -43,7 +43,7 @@ public class Main : MonoBehaviour {
 	}
 	
 	public void OnNewGameButton() {
-		Application.LoadLevel ("ModelTestScene");
+		Application.LoadLevel ("pro_d scene");
 	}
 	public void OnSettingButton() {
 		ChangeState (SceneState.SETTING);

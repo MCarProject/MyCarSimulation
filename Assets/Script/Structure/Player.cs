@@ -9,6 +9,13 @@ public class Player : CarBase {
 	public static CarState playerCarState;
 	public static bool playerClutch;
 	Text debugUI;
+	
+	//Sound
+	AudioSource[] soundEffect;
+	AudioSource engineEffect;
+
+	//Light
+	public static Light[] headLight;
 
 	void Start () {
 		std_torque = 300.0f;
@@ -22,6 +29,15 @@ public class Player : CarBase {
 		debugUI = GameObject.Find ("Debug").GetComponent<Text> ();
 
 		PlayerInit ();
+
+		soundEffect = GetComponentsInChildren<AudioSource> ();
+		foreach (AudioSource audio in soundEffect) {
+			if(audio.name == "CarEngineEffect") {
+				engineEffect = audio;
+				engineEffect.volume = GlobalConfig.worldEffect * 0.3f;
+			}
+		}
+		headLight = GetComponentsInChildren<Light> ();
 	}
 
 	void PlayerInit () {
@@ -43,6 +59,8 @@ public class Player : CarBase {
 		                ", a:" + wheelCollider[0].motorTorque + ", g:" + gearFactor + 
 		                ", S:" + carState + ", RPM:" + RPM);
 		SetPlayerStatus ();
+
+		OnEngineSound ();
 	}
 
 	void SetPlayerStatus() {
@@ -51,5 +69,20 @@ public class Player : CarBase {
 		playerDurability = durability;
 		playerCarState = carState;
 		playerClutch = isClutched;
+	}
+	
+	void OnEngineSound() {
+		if (carState == CarState.ENGINE_OFF) {
+			engineEffect.Stop ();
+		} else {
+			if(!engineEffect.isPlaying) 
+				engineEffect.Play();
+		}
+		engineEffect.pitch = (RPM * 2.333333f) + 0.166666f;
+
+		if (engineEffect.pitch < 0.4f)
+			engineEffect.pitch = 0.4f;
+		else if (engineEffect.pitch > 2.4f)
+			engineEffect.pitch = 2.4f;
 	}
 }
