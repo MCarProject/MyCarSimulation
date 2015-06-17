@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
 
 public class Player : CarBase {
@@ -8,7 +7,6 @@ public class Player : CarBase {
 	public static float playerDurability;
 	public static CarState playerCarState;
 	public static bool playerClutch;
-	Text debugUI;
 	
 	//Sound
 	AudioSource[] soundEffect;
@@ -25,8 +23,6 @@ public class Player : CarBase {
 
 		carState = CarState.GEARS_N;
 		Initialize ();
-
-		debugUI = GameObject.Find ("Debug").GetComponent<Text> ();
 
 		PlayerInit ();
 
@@ -55,9 +51,6 @@ public class Player : CarBase {
 		Accelerate();
 		Brake_Strong ();
 		Turn ();
-		debugUI.text = ("v:" + rigidBody.velocity.magnitude + "/" + std_maximumVelocity * gearFactor + 
-		                ", a:" + wheelCollider[0].motorTorque + ", g:" + gearFactor + 
-		                ", S:" + carState + ", RPM:" + RPM);
 		SetPlayerStatus ();
 
 		OnEngineSound ();

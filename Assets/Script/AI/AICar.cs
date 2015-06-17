@@ -24,12 +24,12 @@ public class AICar : MonoBehaviour {
 	public Transform[] wheelTransform = new Transform[4];
 
 	//Sensing
-	float sensorLength = 6.0f;
+	float sensorLength = 10.0f;
 	float frontSensorStartPoint = 2.5f;  
 	float frontSensorSideDist = 1.0f;  
 	float frontSensorsAngle = 30.0f;
 	float sidewaySensorStartPoint = 1.1f;
-	float sidewaySensorLength = 4.0f;  
+	float sidewaySensorLength = 6.0f;  
 	int sensorFlag = 0;
 	float avoidSenstivity = 0.0f;
 

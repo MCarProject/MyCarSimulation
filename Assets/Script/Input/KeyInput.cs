@@ -1,13 +1,17 @@
 ﻿using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 public class KeyInput : MonoBehaviour {
 	CarBase player;
+	Image help;
 
 	void Start () {
 		player = GameObject.Find ("Player").GetComponent<CarBase> ();
 		Cursor.lockState = CursorLockMode.Locked;
 		Cursor.visible = false;
+
+		help = GameObject.Find ("Help").GetComponent<Image> ();
 	}
 
 	void LateUpdate() {
@@ -62,6 +66,13 @@ public class KeyInput : MonoBehaviour {
 				} else {
 					Player.headLight[i].enabled = true;
 				}
+			}
+		}
+		if (Input.GetKeyDown (KeyCode.F1)) {
+			if(help.IsActive()) {
+				help.enabled = false;
+			} else {
+				help.enabled = true;
 			}
 		}
 	}
